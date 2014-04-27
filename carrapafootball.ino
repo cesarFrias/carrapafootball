@@ -1,13 +1,23 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 #include <SoftwareSerial.h>
+#include "timed.h"
 
-SoftwareSerial bluetooth(4, 5);
-Adafruit_PCD8544 display = Adafruit_PCD8544(8, 9, 10, 11, 12);
+//SoftwareSerial bluetooth(4, 5);
+//Adafruit_PCD8544 display = Adafruit_PCD8544(8, 9, 10, 11, 12);
+
+/* Adaptando para minha montagem */
+Adafruit_PCD8544 display = Adafruit_PCD8544(3, 4, 5, 7, 8);
+SoftwareSerial bluetooth(0, 1); // RX, TX originais do arduino nano
+
 
 static const unsigned char PROGMEM boneco1[] = { 0x08, 0xd2, 0x3d, 0xd2, 0x08 };
 static const unsigned char PROGMEM boneco2[] = { 0x08, 0xd2, 0x3d, 0xd2, 0x20 };
 static const unsigned char PROGMEM boneco3[] = { 0x20, 0xd2, 0x3d, 0xd2, 0x08 };
+
+/* Cada minuto no jogo, vale 5 segundos de tempo real */
+TimedExecution velocidade_jogo = TimedExecution(5000);
+
 
 int linhaBoneco = 0;
 int colunaBoneco = 10;
@@ -222,6 +232,7 @@ char* escolhe_direcao(){
   }
 }
 
+
 void setup(){
   Serial.begin(9600);
   bluetooth.begin(9600);
@@ -262,7 +273,7 @@ void loop(){
       default: break;
     }
   qtd_interacoes++;
-  if (qtd_interacoes % 5 == 0){
+  if (velocidade_jogo.expired()){
     tempo++;
   }
   delay(200);
